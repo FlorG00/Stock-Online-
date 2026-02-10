@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Inventario - Heladería</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.95;
+            font-size: 1.05em;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            overflow-x: auto;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 0.95em;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .nav-tab:hover {
+            background: #e9ecef;
+        }
+
+        .nav-tab.active {
+            color: #f5576c;
+            border-bottom: 3px solid #f5576c;
+            background: white;
+        }
+
+        .content {
+            padding: 20px;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.95em;
+            transition: border 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #f5576c;
+        }
+
+        .btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #f5576c;
+            margin-bottom: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 3fr 80px 80px 80px;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .input-row input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .input-row label {
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        .category-header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin: 15px 0 10px 0;
+            font-weight: 700;
+        }
+
+        .stock-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            font-size: 0.9em;
+        }
+
+        .stock-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .stock-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .stock-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .stock-low {
+            color: #dc3545;
+            font-weight: 700;
+        }
+
+        .stock-ok {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .help-text {
+            font-size: 0.85em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .filter-bar {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-bar input,
+        .filter-bar select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .desvio-positivo {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .desvio-negativo {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍦 Sistema de Inventario - Heladería</h1>
+            <p>Control automatizado de stock • Fórmula: Stock Inicial - Ventas + Descargas - Bajas + Altas = Stock Teórico</p>
+        </div>
+
+        <div class="nav-tabs" id="navTabs">
+            <button class="nav-tab active" data-tab="dashboard">📊 Dashboard</button>
+            <button class="nav-tab" data-tab="stock-inicial">📥 Stock Inicial</button>
+            <button class="nav-tab" data-tab="ventas">💰 Ventas</button>
+            <button class="nav-tab" data-tab="descargas">📦 Descargas</button>
+            <button class="nav-tab" data-tab="bajas">📉 Bajas</button>
+            <button class="nav-tab" data-tab="altas">📈 Altas</button>
+            <button class="nav-tab" data-tab="consulta">🔍 Consultar Stock</button>
+            <button class="nav-tab" data-tab="bultos">📦 Vista Bultos</button>
+            <button class="nav-tab" data-tab="desvios">⚠️ Desvíos</button>
+        </div>
+
+        <div class="content">
+            <!-- DASHBOARD -->
+            <div id="dashboard" class="tab-content active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-productos">21</div>
+                        <div class="stat-label">Productos en Sistema</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <div class="stat-value" id="total-movimientos">0</div>
+                        <div class="stat-label">Movimientos Registrados</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <div class="stat-value" id="ultima-actualizacion">-</div>
+                        <div class="stat-label">Última Actualización</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📋 Guía Rápida del Sistema</div>
+                    <ol style="line-height: 2;">
+                        <li><strong>Stock Inicial:</strong> Define el punto de partida con fecha específica (P, C, U)</li>
+                        <li><strong>Ventas:</strong> Registra productos vendidos (se restan automáticamente)</li>
+                        <li><strong>Descargas:</strong> Registra mercadería que ingresa (se suma)</li>
+                        <li><strong>Bajas:</strong> Vencimientos, roturas, baja de latas (se resta)</li>
+                        <li><strong>Altas:</strong> Ajustes positivos, devoluciones (se suma)</li>
+                        <li><strong>Consultar Stock:</strong> Ve el stock teórico en cualquier fecha</li>
+                        <li><strong>Vista Bultos:</strong> Conversión automática a packs/cajas completas</li>
+                        <li><strong>Desvíos:</strong> Compara teórico vs real, calcula % de diferencia</li>
+                    </ol>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>💡 Conversión Inteligente:</strong> Para Helado x Kilo usas P (Packs) + U (Unidades). Para otros productos usas P (Packs) + C (Cajas) + U (Unidades). El sistema convierte automáticamente.
+                </div>
+
+                <div class="alert alert-warning">
+                    <strong>📌 Fórmula del Sistema:</strong> Stock Inicial - Ventas + Descargas - Bajas + Altas = Stock Teórico
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🔄 Acciones Rápidas</div>
+                    <button class="btn btn-primary" data-tab-goto="stock-inicial">📥 Cargar Stock Inicial</button>
+                    <button class="btn btn-success" data-tab-goto="ventas">💰 Registrar Ventas Hoy</button>
+                    <button class="btn btn-info" data-tab-goto="consulta">🔍 Ver Stock Actual</button>
+                    <button class="btn btn-danger" onclick="resetearSistema()">🗑️ Resetear Sistema</button>
+                </div>
+            </div>
+
+            <!-- STOCK INICIAL -->
+            <div id="stock-inicial" class="tab-content">
+                <h2 style="margin-bottom: 20px;">📥 Configurar Stock Inicial</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Fecha del Stock Inicial *</label>
+                        <input type="date" id="fecha-inicial" required>
+                        <div class="help-text">Define el punto de partida del sistema</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Sucursal *</label>
+                        <select id="sucursal-inicial">
+                            <option value="Castelli">Castelli</option>
+                            <option value="Diagonal">Diagonal</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="mostrarFormularioStock()">📝 Cargar Stock de Productos</button>
+                
+                <div id="formulario-stock" style="margin-top: 20px; display: none;">
+                    <div class="alert alert-info">
+                        <strong>Helado x Kilo:</strong> P (Packs de 7.8kg) + U (Unidades sueltas de caja abierta)<br>
+                        <strong>Otros productos:</strong> P (Packs) + C (Cajas) + U (Unidades sueltas)
+                    </div>
+                    <div id="lista-productos-stock"></div>
+                    <button class="btn btn-success" onclick="guardarStockInicial()" style="margin-top: 15px;">✅ Guardar Stock Inicial</button>
+                </div>
+            </div>
+
+            <!-- VENTAS -->
+            <div id="ventas" class="tab-content">
+                <h2 style="margin-bottom: 20px;">💰 Registrar Ventas</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Fecha de Venta *</label>
+                        <input type="date" id="fecha-venta" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Sucursal *</label>
+                        <select id="sucursal-venta">
+                            <option value="Castelli">Castelli</option>
+                            <option value="Diagonal">Diagonal</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="mostrarFormularioVentas()">📝 Registrar Ventas del Día</button>
+                
+                <div id="formulario-ventas" style="margin-top: 20px; display: none;">
+                    <div class="alert alert-warning">
+                        ⚠️ Las ventas se <strong>restan</strong> del stock. Ingresa solo lo que se vendió.
+                    </div>
+                    <div id="lista-productos-ventas"></div>
+                    <button class="btn btn-success" onclick="guardarVentas()" style="margin-top: 15px;">✅ Guardar Ventas</button>
+                </div>
+            </div>
+
+            <!-- DESCARGAS -->
+            <div id="descargas" class="tab-content">
+                <h2 style="margin-bottom: 20px;">📦 Registrar Descargas (Mercadería que Ingresa)</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Fecha de Descarga *</label>
+                        <input type="date" id="fecha-descarga" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Sucursal *</label>
+                        <select id="sucursal-descarga">
+                            <option value="Castelli">Castelli</option>
+                            <option value="Diagonal">Diagonal</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="mostrarFormularioDescargas()">📝 Registrar Descargas</button>
+                
+                <div id="formulario-descargas" style="margin-top: 20px; display: none;">
+                    <div class="alert alert-success">
+                        ✅ Las descargas se <strong>suman</strong> al stock (mercadería que entra).
+                    </div>
+                    <div id="lista-productos-descargas"></div>
+                    <button class="btn btn-success" onclick="guardarDescargas()" style="margin-top: 15px;">✅ Guardar Descargas</button>
+                </div>
+            </div>
+
+            <!-- BAJAS -->
+            <div id="bajas" class="tab-content">
+                <h2 style="margin-bottom: 20px;">📉 Registrar Bajas</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Fecha de Baja *</label>
+                        <input type="date" id="fecha-baja" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Sucursal *</label>
+                        <select id="sucursal-baja">
+                            <option value="Castelli">Castelli</option>
+                            <option value="Diagonal">Diagonal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Motivo de Baja</label>
+                        <select id="motivo-baja">
+                            <option value="Vencimiento">Vencimiento</option>
+                            <option value="Rotura">Rotura</option>
+                            <option value="Deterioro">Deterioro</option>
+                            <option value="Baja de Latas">Baja de Latas (Helado x Kilo)</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="mostrarFormularioBajas()">📝 Registrar Bajas</button>
+                
+                <div id="formulario-bajas" style="margin-top: 20px; display: none;">
+                    <div class="alert alert-warning">
+                        ⚠️ Las bajas se <strong>restan</strong> del stock (producto que sale sin venta).
+                    </div>
+                    <div id="lista-productos-bajas"></div>
+                    <button class="btn btn-success" onclick="guardarBajas()" style="margin-top: 15px;">✅ Guardar Bajas</button>
+                </div>
+            </div>
+
+            <!-- ALTAS -->
+            <div id="altas" class="tab-content">
+                <h2 style="margin-bottom: 20px;">📈 Registrar Altas</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Fecha de Alta *</label>
+                        <input type="date" id="fecha-alta" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Sucursal *</label>
+                        <select id="sucursal-alta">
+                            <option value="Castelli">Castelli</option>
+                            <option value="Diagonal">Diagonal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Motivo de Alta</label>
+                        <select id="motivo-alta">
+                            <option value="Ajuste de Inventario">Ajuste de Inventario</option>
+                            <option value="Devolución">Devolución</option>
+                            <option value="Recuperación">Recuperación</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="mostrarFormularioAltas()">📝 Registrar Altas</button>
+                
+                <div id="formulario-altas" style="margin-top: 20px; display: none;">
+                    <div class="alert alert-success">
+                        ✅ Las altas se <strong>suman</strong> al stock (ajustes positivos).
+                    </div>
+                    <div id="lista-productos-altas"></div>
+                    <button class="btn btn-success" onclick="guardarAltas()" style="margin-top: 15px;">✅ Guardar Altas</button>
+                </div>
+            </div>
+
+            <!-- CONSULTA DE STOCK -->
+            <div id="consulta" class="tab-content">
+                <h2 style="margin-bottom: 20px;">🔍 Consultar Stock Teórico</h2>
+                
+                <div class="filter-bar">
+                    <div>
+                        <label style="margin-right: 10px; font-weight: 600;">Fecha:</label>
+                        <input type="date" id="fecha-consulta">
+                    </div>
+                    <div>
+                        <label style="margin-right: 10px; font-weight: 600;">Sucursal:</label>
+                        <select id="sucursal-consulta">
+                            <option value="Castelli">Castelli</option>
+                            <option value="Diagonal">Diagonal</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="consultarStock()">🔍 Consultar</button>
+                    <input type="text" id="buscar-producto" placeholder="Buscar producto..." style="flex: 1; min-width: 200px;">
+                </div>
+
+                <div id="resultado-consulta"></div>
+            </div>
+
+            <!-- VISTA BULTOS -->
+            <div id="bultos" class="tab-content">
+                <h2 style="margin-bottom: 20px;">📦 Vista de Bultos Cerrados para Compras</h2>
+                
+                <div class="alert alert-info">
+                    <strong>🎯 Propósito:</strong> Esta vista muestra solo los <strong>packs y cajas completas</strong> que tienes en stock. Las unidades sueltas se muestran aparte. Ideal para saber cuántos bultos cerrados tienes disponibles antes de hacer un pedido.
+                </div>
+
+                <div class="filter-bar">
+                    <div>
+                        <label style="margin-right: 10px; font-weight: 600;">Fecha:</label>
+                        <input type="date" id="fecha-bultos">
+                    </div>
+                    <div>
+                        <label style="margin-right: 10px; font-weight: 600;">Sucursal:</label>
+                        <select id="sucursal-bultos">
+                            <option value="Castelli">Castelli</option>
+                            <option value="Diagonal">Diagonal</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="mostrarVistaBultos()">📦 Ver Bultos</button>
+                </div>
+
+                <div id="resultado-bultos"></div>
+            </div>
+
+            <!-- DESVÍOS -->
+            <div id="desvios" class="tab-content">
+                <h2 style="margin-bottom: 20px;">⚠️ Análisis de Desvíos (Teórico vs Real)</h2>
+                
+                <div class="alert alert-info">
+                    <strong>📊 ¿Qué es esto?</strong><br>
+                    El sistema calcula el <strong>stock teórico</strong> basado en tus movimientos. Tú cargas el <strong>stock real</strong> (lo que realmente contaste físicamente). El sistema te muestra las diferencias y el % de desvío para cada producto.
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Fecha del Conteo Físico *</label>
+                        <input type="date" id="fecha-desvio">
+                    </div>
+                    <div class="form-group">
+                        <label>Sucursal *</label>
+                        <select id="sucursal-desvio">
+                            <option value="Castelli">Castelli</option>
+                            <option value="Diagonal">Diagonal</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="mostrarFormularioDesvio()">📝 Cargar Stock Real Contado</button>
+                
+                <div id="formulario-desvio" style="margin-top: 20px; display: none;"></div>
+                
+                <div id="resultado-desvio" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // PRODUCTOS BASE
+        const PRODUCTOS_BASE = [
+            { id: 'anana_crema', nombre: 'ANANA A LA CREMA', categoria: 'Helado x Kilo', subcategoria: 'Al Agua', peso: 7.8, tipo: 'helado_kilo' },
+            { id: 'banana_ddl', nombre: 'BANANA CON DULCE DE LECHE', categoria: 'Helado x Kilo', subcategoria: 'Comunes', peso: 7.8, tipo: 'helado_kilo' },
+            { id: 'cappuccino', nombre: 'CAPPUCCINO GRANIZADO', categoria: 'Helado x Kilo', subcategoria: 'Especiales', peso: 7.8, tipo: 'helado_kilo' },
+            { id: 'cereza', nombre: 'CEREZA', categoria: 'Helado x Kilo', subcategoria: 'Al Agua', peso: 7.8, tipo: 'helado_kilo' },
+            { id: 'choco_oreo', nombre: 'CHOCO BLANCO OREO', categoria: 'Helado x Kilo', subcategoria: 'Premium', peso: 7.8, tipo: 'helado_kilo' },
+            { id: 'chocolate', nombre: 'CHOCOLATE', categoria: 'Helado x Kilo', subcategoria: 'Comunes', peso: 7.8, tipo: 'helado_kilo' },
+            { id: 'choco_blanco', nombre: 'CHOCOLATE BLANCO', categoria: 'Helado x Kilo', subcategoria: 'Especiales', peso: 7.8, tipo: 'helado_kilo' },
+            { id: 'choco_almendras', nombre: 'CHOCOLATE CON ALMENDRAS', categoria: 'Helado x Kilo', subcategoria: 'Premium', peso: 7.8, tipo: 'helado_kilo' },
+            { id: 'dulce_leche', nombre: 'DULCE DE LECHE', categoria: 'Helado x Kilo', subcategoria: 'Comunes', peso: 7.8, tipo: 'helado_kilo' },
+            { id: 'frutilla_crema', nombre: 'FRUTILLA A LA CREMA', categoria: 'Helado x Kilo', subcategoria: 'Comunes', peso: 7.8, tipo: 'helado_kilo' },
+            { id: 'bombon_ddl', nombre: 'BOMBON DDL', categoria: 'Bombones', peso: 2.4, tipo: 'producto', unidadesPorCaja: 12, cajasPorPack: 6 },
+            { id: 'bombon_frutilla', nombre: 'BOMBON FRUTILLA', categoria: 'Bombones', peso: 2.4, tipo: 'producto', unidadesPorCaja: 12, cajasPorPack: 6 },
+            { id: 'bombon_granizado', nombre: 'BOMBON GRANIZADO', categoria: 'Bombones', peso: 2.4, tipo: 'producto', unidadesPorCaja: 12, cajasPorPack: 6 },
+            { id: 'torta_oreo', nombre: 'TORTA OREO', categoria: 'Tortas', peso: 1.8, tipo: 'producto', unidadesPorCaja: 4, cajasPorPack: 6 },
+            { id: 'torta_ddl', nombre: 'TORTA DDL', categoria: 'Tortas', peso: 1.8, tipo: 'producto', unidadesPorCaja: 4, cajasPorPack: 6 },
+            { id: 'familiar_ddl', nombre: 'FAMILIAR DDL X 6', categoria: 'Familiares', peso: 3.0, tipo: 'producto', unidadesPorCaja: 6, cajasPorPack: 4 },
+            { id: 'familiar_americana', nombre: 'FAMILIAR AMERICANA X 6', categoria: 'Familiares', peso: 3.0, tipo: 'producto', unidadesPorCaja: 6, cajasPorPack: 4 },
+            { id: 'tentacion_oreo', nombre: 'TENTACION OREO X 6', categoria: 'Tentaciones', peso: 1.8, tipo: 'producto', unidadesPorCaja: 6, cajasPorPack: 8 },
+            { id: 'tentacion_brownie', nombre: 'TENTACION BROWNIE X 6', categoria: 'Tentaciones', peso: 1.8, tipo: 'producto', unidadesPorCaja: 6, cajasPorPack: 8 },
+            { id: 'palito_ddl', nombre: 'PALITO DDL', categoria: 'Palitos', subcategoria: 'Crema', peso: 2.4, tipo: 'producto', unidadesPorCaja: 24, cajasPorPack: 6 },
+            { id: 'palito_frutilla', nombre: 'PALITO FRUTILLA', categoria: 'Palitos', subcategoria: 'Agua', peso: 1.8, tipo: 'producto', unidadesPorCaja: 24, cajasPorPack: 6 }
+        ];
+
+        // Variables globales
+        let stockInicial = [];
+        let movimientos = [];
+
+        // NAVEGACIÓN - SISTEMA SIMPLIFICADO
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Iniciando sistema...');
+            
+            // Configurar navegación por tabs
+            const navTabs = document.getElementById('navTabs');
+            const tabButtons = navTabs.querySelectorAll('.nav-tab');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    showTab(tabId);
+                });
+            });
+            
+            // Configurar botones de acción rápida
+            document.querySelectorAll('[data-tab-goto]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab-goto');
+                    showTab(tabId);
+                });
+            });
+            
+            // Cargar datos
+            cargarDatos();
+            
+            // Establecer fecha de hoy por defecto
+            const hoy = new Date().toISOString().split('T')[0];
+            document.querySelectorAll('input[type="date"]').forEach(input => {
+                input.value = hoy;
+            });
+            
+            // Event listener para búsqueda
+            const inputBuscar = document.getElementById('buscar-producto');
+            if (inputBuscar) {
+                inputBuscar.addEventListener('input', () => {
+                    const fecha = document.getElementById('fecha-consulta').value;
+                    const sucursal = document.getElementById('sucursal-consulta').value;
+                    if (fecha) {
+                        const resultado = calcularStockEnFecha(fecha, sucursal);
+                        mostrarResultadoStock(resultado, fecha, sucursal);
+                    }
+                });
+            }
+            
+            console.log('✅ Sistema listo');
+        });
+
+        function showTab(tabId) {
+            console.log('Cambiando a tab:', tabId);
+            
+            // Ocultar todos los contenidos
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Quitar active de todos los botones
+            document.querySelectorAll('.nav-tab').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Mostrar el tab seleccionado
+            const selectedContent = document.getElementById(tabId);
+            if (selectedContent) {
+                selectedContent.classList.add('active');
+                console.log('✅ Tab mostrado:', tabId);
+            } else {
+                console.error('❌ No se encontró el tab:', tabId);
+            }
+            
+            // Activar el botón correspondiente
+            const selectedButton = document.querySelector(`[data-tab="${tabId}"]`);
+            if (selectedButton) {
+                selectedButton.classList.add('active');
+            }
+        }
+
+        // FUNCIONES DE ALMACENAMIENTO
+        async function cargarDatos() {
+            try {
+                const stockData = await window.storage.get('heladeria-stock-inicial', false);
+                const movData = await window.storage.get('heladeria-movimientos', false);
+                
+                if (stockData && stockData.value) {
+                    stockInicial = JSON.parse(stockData.value);
+                    console.log('Stock inicial cargado:', stockInicial.length, 'items');
+                }
+                
+                if (movData && movData.value) {
+                    movimientos = JSON.parse(movData.value);
+                    console.log('Movimientos cargados:', movimientos.length, 'items');
+                }
+                
+                actualizarDashboard();
+            } catch (error) {
+                console.log('Primera carga - iniciando sistema nuevo');
+                stockInicial = [];
+                movimientos = [];
+            }
+        }
+
+        async function guardarDatos() {
+            try {
+                await window.storage.set('heladeria-stock-inicial', JSON.stringify(stockInicial), false);
+                await window.storage.set('heladeria-movimientos', JSON.stringify(movimientos), false);
+                console.log('✅ Datos guardados correctamente');
+                return true;
+            } catch (error) {
+                console.error('❌ Error al guardar datos:', error);
+                alert('Error al guardar datos. Por favor intenta nuevamente.');
+                return false;
+            }
+        }
+
+        async function resetearSistema() {
+            if (!confirm('⚠️ ¿Estás seguro? Esto borrará TODOS los datos del sistema. Esta acción no se puede deshacer.')) {
+                return;
+            }
+            
+            try {
+                await window.storage.delete('heladeria-stock-inicial', false);
+                await window.storage.delete('heladeria-movimientos', false);
+                stockInicial = [];
+                movimientos = [];
+                actualizarDashboard();
+                alert('✅ Sistema reseteado correctamente');
+                location.reload();
+            } catch (error) {
+                console.error('Error al resetear:', error);
+                alert('Error al resetear el sistema');
+            }
+        }
+
+        // DASHBOARD
+        function actualizarDashboard() {
+            document.getElementById('total-productos').textContent = PRODUCTOS_BASE.length;
+            document.getElementById('total-movimientos').textContent = movimientos.length;
+            
+            if (movimientos.length > 0) {
+                const ultimoMov = movimientos[movimientos.length - 1];
+                const fecha = new Date(ultimoMov.fecha);
+                document.getElementById('ultima-actualizacion').textContent = fecha.toLocaleDateString('es-AR');
+            } else {
+                document.getElementById('ultima-actualizacion').textContent = '-';
+            }
+        }
+
+        // STOCK INICIAL
+        function mostrarFormularioStock() {
+            const container = document.getElementById('lista-productos-stock');
+            container.innerHTML = '';
+            
+            const categorias = {};
+            PRODUCTOS_BASE.forEach(prod => {
+                if (!categorias[prod.categoria]) categorias[prod.categoria] = [];
+                categorias[prod.categoria].push(prod);
+            });
+            
+            for (const [categoria, productos] of Object.entries(categorias)) {
+                const header = document.createElement('div');
+                header.className = 'category-header';
+                header.textContent = categoria;
+                container.appendChild(header);
+                
+                productos.forEach(producto => {
+                    const row = document.createElement('div');
+                    row.className = 'input-row';
+                    
+                    if (producto.tipo === 'helado_kilo') {
+                        row.innerHTML = `
+                            <label>${producto.nombre} <small>(${producto.subcategoria || ''})</small></label>
+                            <input type="number" id="stock-p-${producto.id}" placeholder="Packs" min="0" value="0" step="1">
+                            <span style="grid-column: span 1; text-align: center; font-weight: 600;">-</span>
+                            <input type="number" id="stock-u-${producto.id}" placeholder="Unidades" min="0" value="0" step="1">
+                        `;
+                    } else {
+                        row.innerHTML = `
+                            <label>${producto.nombre}</label>
+                            <input type="number" id="stock-p-${producto.id}" placeholder="Packs" min="0" value="0" step="1">
+                            <input type="number" id="stock-c-${producto.id}" placeholder="Cajas" min="0" value="0" step="1">
+                            <input type="number" id="stock-u-${producto.id}" placeholder="Unidades" min="0" value="0" step="1">
+                        `;
+                    }
+                    
+                    container.appendChild(row);
+                });
+            }
+            
+            document.getElementById('formulario-stock').style.display = 'block';
+        }
+
+        async function guardarStockInicial() {
+            const fecha = document.getElementById('fecha-inicial').value;
+            const sucursal = document.getElementById('sucursal-inicial').value;
+            
+            if (!fecha) {
+                alert('❌ Por favor selecciona una fecha');
+                return;
+            }
+            
+            stockInicial = [];
+            let productosConStock = 0;
+            
+            PRODUCTOS_BASE.forEach(producto => {
+                const packs = parseInt(document.getElementById(`stock-p-${producto.id}`)?.value || 0);
+                const cajas = producto.tipo === 'helado_kilo' ? 0 : parseInt(document.getElementById(`stock-c-${producto.id}`)?.value || 0);
+                const unidades = parseInt(document.getElementById(`stock-u-${producto.id}`)?.value || 0);
+                
+                if (packs > 0 || cajas > 0 || unidades > 0) {
+                    stockInicial.push({
+                        productoId: producto.id,
+                        nombre: producto.nombre,
+                        fecha,
+                        sucursal,
+                        packs,
+                        cajas,
+                        unidades,
+                        tipo: producto.tipo
+                    });
+                    productosConStock++;
+                }
+            });
+            
+            if (productosConStock === 0) {
+                alert('❌ No hay productos con stock para guardar');
+                return;
+            }
+            
+            const guardado = await guardarDatos();
+            if (guardado) {
+                alert(`✅ Stock inicial guardado correctamente\n📦 ${productosConStock} productos registrados\n📅 Fecha: ${new Date(fecha).toLocaleDateString('es-AR')}\n🏪 Sucursal: ${sucursal}`);
+                actualizarDashboard();
+                document.getElementById('formulario-stock').style.display = 'none';
+            }
+        }
+
+        // MOVIMIENTOS
+        function mostrarFormularioVentas() {
+            mostrarFormularioMovimiento('ventas', 'lista-productos-ventas');
+        }
+
+        function mostrarFormularioDescargas() {
+            mostrarFormularioMovimiento('descargas', 'lista-productos-descargas');
+        }
+
+        function mostrarFormularioBajas() {
+            mostrarFormularioMovimiento('bajas', 'lista-productos-bajas');
+        }
+
+        function mostrarFormularioAltas() {
+            mostrarFormularioMovimiento('altas', 'lista-productos-altas');
+        }
+
+        function mostrarFormularioMovimiento(tipo, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            const categorias = {};
+            PRODUCTOS_BASE.forEach(prod => {
+                if (!categorias[prod.categoria]) categorias[prod.categoria] = [];
+                categorias[prod.categoria].push(prod);
+            });
+            
+            for (const [categoria, productos] of Object.entries(categorias)) {
+                const header = document.createElement('div');
+                header.className = 'category-header';
+                header.textContent = categoria;
+                container.appendChild(header);
+                
+                productos.forEach(producto => {
+                    const row = document.createElement('div');
+                    row.className = 'input-row';
+                    
+                    if (producto.tipo === 'helado_kilo') {
+                        row.innerHTML = `
+                            <label>${producto.nombre} <small>(${producto.subcategoria || ''})</small></label>
+                            <input type="number" id="${tipo}-p-${producto.id}" placeholder="Packs" min="0" value="0" step="1">
+                            <span style="grid-column: span 1; text-align: center; font-weight: 600;">-</span>
+                            <input type="number" id="${tipo}-u-${producto.id}" placeholder="Unidades" min="0" value="0" step="1">
+                        `;
+                    } else {
+                        row.innerHTML = `
+                            <label>${producto.nombre}</label>
+                            <input type="number" id="${tipo}-p-${producto.id}" placeholder="Packs" min="0" value="0" step="1">
+                            <input type="number" id="${tipo}-c-${producto.id}" placeholder="Cajas" min="0" value="0" step="1">
+                            <input type="number" id="${tipo}-u-${producto.id}" placeholder="Unidades" min="0" value="0" step="1">
+                        `;
+                    }
+                    
+                    container.appendChild(row);
+                });
+            }
+            
+            document.getElementById(`formulario-${tipo}`).style.display = 'block';
+        }
+
+        async function guardarVentas() {
+            await guardarMovimiento('ventas', 'fecha-venta', 'sucursal-venta');
+        }
+
+        async function guardarDescargas() {
+            await guardarMovimiento('descargas', 'fecha-descarga', 'sucursal-descarga');
+        }
+
+        async function guardarBajas() {
+            await guardarMovimiento('bajas', 'fecha-baja', 'sucursal-baja', 'motivo-baja');
+        }
+
+        async function guardarAltas() {
+            await guardarMovimiento('altas', 'fecha-alta', 'sucursal-alta', 'motivo-alta');
+        }
+
+        async function guardarMovimiento(tipo, fechaId, sucursalId, motivoId = null) {
+            const fecha = document.getElementById(fechaId).value;
+            const sucursal = document.getElementById(sucursalId).value;
+            const motivo = motivoId ? document.getElementById(motivoId).value : '';
+            
+            if (!fecha) {
+                alert('❌ Por favor selecciona una fecha');
+                return;
+            }
+            
+            const movimientoActual = {
+                tipo,
+                fecha,
+                sucursal,
+                motivo,
+                timestamp: new Date().toISOString(),
+                items: []
+            };
+            
+            PRODUCTOS_BASE.forEach(producto => {
+                const packs = parseInt(document.getElementById(`${tipo}-p-${producto.id}`)?.value || 0);
+                const cajas = producto.tipo === 'helado_kilo' ? 0 : parseInt(document.getElementById(`${tipo}-c-${producto.id}`)?.value || 0);
+                const unidades = parseInt(document.getElementById(`${tipo}-u-${producto.id}`)?.value || 0);
+                
+                if (packs > 0 || cajas > 0 || unidades > 0) {
+                    movimientoActual.items.push({
+                        productoId: producto.id,
+                        nombre: producto.nombre,
+                        packs,
+                        cajas,
+                        unidades
+                    });
+                }
+            });
+            
+            if (movimientoActual.items.length === 0) {
+                alert('❌ No hay productos con movimientos para guardar');
+                return;
+            }
+            
+            movimientos.push(movimientoActual);
+            const guardado = await guardarDatos();
+            
+            if (guardado) {
+                const tipoNombre = tipo.charAt(0).toUpperCase() + tipo.slice(1);
+                alert(`✅ ${tipoNombre} guardadas correctamente\n📦 ${movimientoActual.items.length} productos registrados`);
+                actualizarDashboard();
+                document.getElementById(`formulario-${tipo}`).style.display = 'none';
+            }
+        }
+
+        // CONSULTA DE STOCK
+        function consultarStock() {
+            const fecha = document.getElementById('fecha-consulta').value;
+            const sucursal = document.getElementById('sucursal-consulta').value;
+            
+            if (!fecha) {
+                alert('❌ Selecciona una fecha');
+                return;
+            }
+            
+            const resultado = calcularStockEnFecha(fecha, sucursal);
+            mostrarResultadoStock(resultado, fecha, sucursal);
+        }
+
+        function calcularStockEnFecha(fecha, sucursal) {
+            const stock = {};
+            
+            stockInicial.forEach(item => {
+                if (item.sucursal === sucursal && item.fecha <= fecha) {
+                    stock[item.productoId] = {
+                        nombre: item.nombre,
+                        packs: item.packs,
+                        cajas: item.cajas || 0,
+                        unidades: item.unidades,
+                        tipo: item.tipo
+                    };
+                }
+            });
+            
+            movimientos.forEach(mov => {
+                if (mov.sucursal === sucursal && mov.fecha <= fecha) {
+                    mov.items.forEach(item => {
+                        if (!stock[item.productoId]) {
+                            stock[item.productoId] = { 
+                                nombre: item.nombre, 
+                                packs: 0, 
+                                cajas: 0, 
+                                unidades: 0 
+                            };
+                        }
+                        
+                        const factor = (mov.tipo === 'ventas' || mov.tipo === 'bajas') ? -1 : 1;
+                        
+                        stock[item.productoId].packs += item.packs * factor;
+                        stock[item.productoId].cajas += (item.cajas || 0) * factor;
+                        stock[item.productoId].unidades += item.unidades * factor;
+                    });
+                }
+            });
+            
+            return stock;
+        }
+
+        function mostrarResultadoStock(stock, fecha, sucursal) {
+            const container = document.getElementById('resultado-consulta');
+            const busqueda = document.getElementById('buscar-producto').value.toLowerCase();
+            
+            let html = `<div class="alert alert-info">
+                <strong>📊 Stock Teórico</strong><br>
+                📅 Fecha: ${new Date(fecha).toLocaleDateString('es-AR')}<br>
+                🏪 Sucursal: ${sucursal}<br>
+                📦 Productos: ${Object.keys(stock).length}
+            </div>`;
+            
+            html += '<table class="stock-table"><thead><tr>';
+            html += '<th>Producto</th><th>Packs</th><th>Cajas</th><th>Unidades</th>';
+            html += '</tr></thead><tbody>';
+            
+            let count = 0;
+            for (const [id, data] of Object.entries(stock)) {
+                if (busqueda && !data.nombre.toLowerCase().includes(busqueda)) continue;
+                
+                const producto = PRODUCTOS_BASE.find(p => p.id === id);
+                const stockClass = (data.packs === 0 && data.cajas === 0 && data.unidades === 0) ? 'stock-low' : 'stock-ok';
+                
+                html += '<tr>';
+                html += `<td>${data.nombre}</td>`;
+                html += `<td class="${stockClass}">${data.packs}</td>`;
+                html += `<td class="${stockClass}">${producto?.tipo === 'helado_kilo' ? '-' : data.cajas}</td>`;
+                html += `<td class="${stockClass}">${data.unidades}</td>`;
+                html += '</tr>';
+                count++;
+            }
+            
+            if (count === 0) {
+                html += '<tr><td colspan="4" style="text-align: center; padding: 20px;">No se encontraron productos</td></tr>';
+            }
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // VISTA BULTOS
+        function mostrarVistaBultos() {
+            const fecha = document.getElementById('fecha-bultos').value;
+            const sucursal = document.getElementById('sucursal-bultos').value;
+            
+            if (!fecha) {
+                alert('❌ Selecciona una fecha');
+                return;
+            }
+            
+            const stock = calcularStockEnFecha(fecha, sucursal);
+            const container = document.getElementById('resultado-bultos');
+            
+            let html = `<div class="alert alert-success">
+                <strong>📦 Vista de Bultos Cerrados</strong><br>
+                Mostrando solo packs y cajas completas - Unidades sueltas aparte
+            </div>`;
+            
+            html += '<table class="stock-table"><thead><tr>';
+            html += '<th>Producto</th><th>Packs Completos</th><th>Cajas Completas</th><th>Unidades Sueltas</th>';
+            html += '</tr></thead><tbody>';
+            
+            for (const [id, data] of Object.entries(stock)) {
+                const producto = PRODUCTOS_BASE.find(p => p.id === id);
+                
+                html += '<tr>';
+                html += `<td>${data.nombre}</td>`;
+                html += `<td class="stock-ok"><strong>${data.packs}</strong> packs</td>`;
+                html += `<td class="stock-ok">${producto?.tipo === 'helado_kilo' ? '-' : `<strong>${data.cajas}</strong> cajas`}</td>`;
+                html += `<td>${data.unidades} unidades</td>`;
+                html += '</tr>';
+            }
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // DESVÍOS
+        function mostrarFormularioDesvio() {
+            const fecha = document.getElementById('fecha-desvio').value;
+            const sucursal = document.getElementById('sucursal-desvio').value;
+            
+            if (!fecha) {
+                alert('❌ Selecciona una fecha');
+                return;
+            }
+            
+            const stockTeorico = calcularStockEnFecha(fecha, sucursal);
+            const container = document.getElementById('formulario-desvio');
+            
+            let html = '<div class="alert alert-warning"><strong>📝 Ingresa el stock REAL</strong> (lo que contaste físicamente)</div>';
+            
+            const categorias = {};
+            for (const [id, data] of Object.entries(stockTeorico)) {
+                const producto = PRODUCTOS_BASE.find(p => p.id === id);
+                if (!producto) continue;
+                
+                if (!categorias[producto.categoria]) categorias[producto.categoria] = [];
+                categorias[producto.categoria].push({ ...data, id, producto });
+            }
+            
+            for (const [categoria, items] of Object.entries(categorias)) {
+                html += `<div class="category-header">${categoria}</div>`;
+                
+                items.forEach(item => {
+                    html += `<div class="input-row">`;
+                    html += `<label>${item.nombre} <small style="color: #17a2b8;">(Teórico: ${item.packs}P${item.producto.tipo !== 'helado_kilo' ? `, ${item.cajas}C` : ''}, ${item.unidades}U)</small></label>`;
+                    html += `<input type="number" id="real-p-${item.id}" placeholder="Packs" min="0" value="${item.packs}" step="1">`;
+                    
+                    if (item.tipo !== 'helado_kilo') {
+                        html += `<input type="number" id="real-c-${item.id}" placeholder="Cajas" min="0" value="${item.cajas || 0}" step="1">`;
+                    } else {
+                        html += `<span style="text-align: center;">-</span>`;
+                    }
+                    
+                    html += `<input type="number" id="real-u-${item.id}" placeholder="Unidades" min="0" value="${item.unidades}" step="1">`;
+                    html += `</div>`;
+                });
+            }
+            
+            html += '<button class="btn btn-primary" onclick="calcularDesvios()" style="margin-top: 15px;">📊 Calcular Desvíos</button>';
+            
+            container.innerHTML = html;
+            container.style.display = 'block';
+        }
+
+        function calcularDesvios() {
+            const fecha = document.getElementById('fecha-desvio').value;
+            const sucursal = document.getElementById('sucursal-desvio').value;
+            
+            const stockTeorico = calcularStockEnFecha(fecha, sucursal);
+            const container = document.getElementById('resultado-desvio');
+            
+            let html = '<h3 style="margin-top: 20px; color: #f5576c;">📊 Análisis de Desvíos</h3>';
+            html += '<table class="stock-table"><thead><tr>';
+            html += '<th>Producto</th><th>Stock Teórico</th><th>Stock Real</th><th>Diferencia</th><th>% Desvío</th>';
+            html += '</tr></thead><tbody>';
+            
+            let totalDesvios = 0;
+            let countDesvios = 0;
+            let productosConDesvio = [];
+            
+            for (const [id, teorico] of Object.entries(stockTeorico)) {
+                const producto = PRODUCTOS_BASE.find(p => p.id === id);
+                const realPacks = parseInt(document.getElementById(`real-p-${id}`)?.value || 0);
+                const realCajas = producto?.tipo === 'helado_kilo' ? 0 : parseInt(document.getElementById(`real-c-${id}`)?.value || 0);
+                const realUnidades = parseInt(document.getElementById(`real-u-${id}`)?.value || 0);
+                
+                const totalTeorico = teorico.packs * 100 + (teorico.cajas || 0) * 10 + teorico.unidades;
+                const totalReal = realPacks * 100 + realCajas * 10 + realUnidades;
+                const diferencia = totalReal - totalTeorico;
+                const porcentaje = totalTeorico > 0 ? ((diferencia / totalTeorico) * 100).toFixed(2) : (totalReal > 0 ? 100 : 0);
+                
+                const desvioClass = diferencia > 0 ? 'desvio-positivo' : (diferencia < 0 ? 'desvio-negativo' : '');
+                
+                html += '<tr>';
+                html += `<td>${teorico.nombre}</td>`;
+                html += `<td>${teorico.packs}P${producto?.tipo !== 'helado_kilo' ? `, ${teorico.cajas}C` : ''}, ${teorico.unidades}U</td>`;
+                html += `<td>${realPacks}P${producto?.tipo !== 'helado_kilo' ? `, ${realCajas}C` : ''}, ${realUnidades}U</td>`;
+                html += `<td class="${desvioClass}">${diferencia > 0 ? '+' : ''}${diferencia}</td>`;
+                html += `<td class="${desvioClass}">${porcentaje}%</td>`;
+                html += '</tr>';
+                
+                if (Math.abs(parseFloat(porcentaje)) > 0) {
+                    totalDesvios += Math.abs(parseFloat(porcentaje));
+                    countDesvios++;
+                    if (Math.abs(parseFloat(porcentaje)) > 5) {
+                        productosConDesvio.push({ nombre: teorico.nombre, porcentaje });
+                    }
+                }
+            }
+            
+            html += '</tbody></table>';
+            
+            if (countDesvios > 0) {
+                const promedioDesvio = (totalDesvios / countDesvios).toFixed(2);
+                html += `<div class="stats-grid" style="margin-top: 20px;">`;
+                html += `<div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="stat-value">${promedioDesvio}%</div>
+                    <div class="stat-label">Desvío Promedio</div>
+                </div>`;
+                html += `<div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="stat-value">${productosConDesvio.length}</div>
+                    <div class="stat-label">Productos con >5% Desvío</div>
+                </div>`;
+                html += `</div>`;
+            }
+            
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
